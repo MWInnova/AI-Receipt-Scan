@@ -6,9 +6,10 @@ interface Props {
   receipts: Receipt[];
   onDelete: (id: string) => void;
   onUpload: (file: File) => void;
+  onOpenScanner: () => void;
 }
 
-const HistoryView: React.FC<Props> = ({ receipts, onDelete, onUpload }) => {
+const HistoryView: React.FC<Props> = ({ receipts, onDelete, onUpload, onOpenScanner }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const total = receipts.reduce((acc, curr) => acc + curr.total, 0);
@@ -40,68 +41,77 @@ const HistoryView: React.FC<Props> = ({ receipts, onDelete, onUpload }) => {
 
   return (
     <div 
-      className={`flex flex-col h-full safe-area-top transition-colors duration-200 ${isDragging ? 'bg-blue-50/50' : 'bg-[#F2F2F7]'}`}
+      className={`flex flex-col h-full safe-area-top transition-colors duration-300 ${isDragging ? 'bg-blue-50/50' : 'bg-[#F2F2F7]'}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       <header className="px-6 pt-12 pb-6">
-        <div className="flex justify-between items-start">
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Activity</h1>
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="p-2 bg-white rounded-full shadow-sm border border-gray-100 text-blue-500 active:scale-95 transition-transform"
-            title="Upload Receipt"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-          </button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            accept="image/*" 
-            onChange={handleFileChange}
-          />
-        </div>
+        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Activity</h1>
         
-        <div className="mt-4 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
+        {/* Quick Scan Card / Drop Zone */}
+        <div 
+          className={`mt-6 p-1 rounded-[2rem] transition-all duration-300 ${isDragging ? 'bg-blue-400 scale-[1.02] shadow-xl' : 'bg-white shadow-sm'}`}
+        >
+          <div className="bg-white rounded-[1.8rem] p-6 border-2 border-dashed border-gray-100 flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Scan Receipt</h3>
+            <p className="text-gray-400 text-sm mb-6 px-4">Drop an image here or use your camera to capture a new receipt.</p>
+            
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={onOpenScanner}
+                className="flex-1 bg-blue-500 text-white font-bold py-3 px-4 rounded-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"/></svg>
+                Camera
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd"/></svg>
+                Upload
+              </button>
+            </div>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="image/*" 
+              onChange={handleFileChange}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-between items-end">
           <div>
-            <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Total Spent</p>
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Spending</p>
             <p className="text-3xl font-bold text-gray-900 mt-1">${total.toFixed(2)}</p>
           </div>
-          <div className="bg-blue-50 text-blue-600 px-4 py-2 rounded-2xl font-bold">
-            {receipts.length} Scans
+          <div className="text-right">
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Scans</p>
+            <p className="text-xl font-bold text-blue-500">{receipts.length}</p>
           </div>
         </div>
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 pb-24 relative">
-        {isDragging && (
-          <div className="absolute inset-0 bg-blue-500/10 backdrop-blur-[2px] border-4 border-dashed border-blue-400 rounded-3xl m-4 flex items-center justify-center z-20 pointer-events-none">
-            <div className="text-blue-600 flex flex-col items-center">
-              <svg className="w-12 h-12 mb-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <span className="font-bold">Drop receipt to scan</span>
-            </div>
-          </div>
-        )}
-
         {receipts.length === 0 ? (
-          <div 
-            className="h-64 flex flex-col items-center justify-center text-gray-400 opacity-60 cursor-pointer"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <svg className="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <p className="font-medium">No receipts yet</p>
-            <p className="text-xs mt-1">Tap to upload or drop a file here</p>
+          <div className="h-40 flex flex-col items-center justify-center text-gray-400 opacity-40">
+            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p className="font-medium">Recent items will appear here</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Recent Activity</h4>
             {receipts.map(receipt => (
-              <div key={receipt.id} className="bg-white rounded-2xl p-4 flex items-center shadow-sm border border-gray-100 group">
+              <div key={receipt.id} className="bg-white rounded-[1.5rem] p-4 flex items-center shadow-sm border border-gray-100 group">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
                   <img src={receipt.imageUrl} className="w-full h-full object-cover" alt="" />
                 </div>
