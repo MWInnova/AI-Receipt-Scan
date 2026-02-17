@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ScanSheet</title>
-    <!-- Modern meta tags for mobile -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2563eb">
@@ -35,14 +34,30 @@
         }
     </style>
     <script>
-        // Global error handler for debugging
+        // CRITICAL: Gemini SDK requires process.env
+        window.process = { 
+            env: { 
+                API_KEY: "" // Will be injected by the environment
+            } 
+        };
+
         window.onerror = function(msg, url, line, col, error) {
+            console.error("Global Error:", msg, error);
             const overlay = document.getElementById('error-overlay');
             if (overlay) {
                 overlay.style.display = 'block';
                 overlay.innerHTML += `<div><strong>Error:</strong> ${msg}<br><small>${url}:${line}:${col}</small></div><br>`;
             }
             return false;
+        };
+
+        window.onunhandledrejection = function(event) {
+            console.error("Unhandled Rejection:", event.reason);
+            const overlay = document.getElementById('error-overlay');
+            if (overlay) {
+                overlay.style.display = 'block';
+                overlay.innerHTML += `<div><strong>Rejection:</strong> ${event.reason}</div><br>`;
+            }
         };
     </script>
 </head>

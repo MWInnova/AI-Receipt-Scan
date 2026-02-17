@@ -1,8 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 const receiptSchema = {
   type: Type.OBJECT,
   properties: {
@@ -15,6 +13,8 @@ const receiptSchema = {
 };
 
 export async function extractReceiptData(base64Image: string) {
+  // Initialize inside the function to ensure process.env is available at runtime
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = 'gemini-3-flash-preview';
   
   const response = await ai.models.generateContent({
