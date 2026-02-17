@@ -1,13 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Standardize API access to prevent "process is undefined" crashes
-const getApiKey = () => {
-  if (typeof process !== 'undefined' && process.env.API_KEY) return process.env.API_KEY;
-  return '';
-};
-
-const ai = new GoogleGenAI({ apiKey: getApiKey() });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const receiptSchema = {
   type: Type.OBJECT,
@@ -27,7 +21,12 @@ export async function extractReceiptData(base64Image: string) {
     model,
     contents: {
       parts: [
-        { inlineData: { mimeType: "image/jpeg", data: base64Image.split(',')[1] } },
+        { 
+          inlineData: { 
+            mimeType: "image/jpeg", 
+            data: base64Image.includes(',') ? base64Image.split(',')[1] : base64Image 
+          } 
+        },
         { text: "Extract merchant, date, total, and category from this receipt. Return JSON." }
       ]
     },
@@ -37,5 +36,7 @@ export async function extractReceiptData(base64Image: string) {
     }
   });
 
-  return JSON.parse(response.text || '{}');
+  const text = response.text;
+  if (!text) throw new Error("No text returned from Gemini");
+  return JSON.parse(text);
 }
