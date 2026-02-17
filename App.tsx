@@ -6,6 +6,8 @@ import CameraView from './components/CameraView.tsx';
 import ReceiptEdit from './components/ReceiptEdit.tsx';
 import { extractReceiptData } from './services/geminiService.ts';
 
+console.log("ScanSheet: App component evaluating...");
+
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('history');
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -13,8 +15,15 @@ const App: React.FC = () => {
   const [currentScan, setCurrentScan] = useState<Partial<Receipt> | null>(null);
 
   useEffect(() => {
+    console.log("ScanSheet: App component mounted");
     const saved = localStorage.getItem('receipts');
-    if (saved) setReceipts(JSON.parse(saved));
+    if (saved) {
+      try {
+        setReceipts(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse saved receipts", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
